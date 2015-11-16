@@ -4,6 +4,7 @@
   26/03/2010 Release 0.1
   Written by Federico and Riccardo Galli
   http://www.sideralis.org
+  fixed by Richard Toth http://risko.org
 */
 
 #include "DS1624.h"
@@ -31,22 +32,17 @@ void DS1624::start()
 float DS1624::getTemp()
 {
   float temperature = 0;
-  int tempmsb = 0;
-  int templsb = 0;
-  int temp2 = 0;
-
+  int t = 0;
+  
   Wire.beginTransmission(this->addr);
   Wire.write(READ_T);
   Wire.requestFrom(this->addr, 2);
 
-  if (Wire.available()) {
-    tempmsb = Wire.read();
-  }
-  if (Wire.available()) {
-    templsb = Wire.read();
-  }
-  temp2 = templsb >> 3;
-  temperature = (float(tempmsb) + (float(temp2) * 0.03125));
+  if (Wire.available()) t = Wire.read() << 8;
+  if (Wire.available()) t |= Wire.read();
+  
   Wire.endTransmission();
-  return temperature;
+
+  t >>= 4;
+  return (t & 0x800 ? (t & 0x7ff) - 0x800 : t) / 16.0;
 }
