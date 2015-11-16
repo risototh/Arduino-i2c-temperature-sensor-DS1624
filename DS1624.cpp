@@ -31,8 +31,7 @@ void DS1624::start()
 
 float DS1624::getTemp()
 {
-  float temperature = 0;
-  int t = 0;
+  uint16_t t = 0;
   
   Wire.beginTransmission(this->addr);
   Wire.write(READ_T);
@@ -44,5 +43,5 @@ float DS1624::getTemp()
   Wire.endTransmission();
 
   t >>= 4;
-  return (t & 0x800 ? (t & 0x7ff) - 0x800 : t) / 16.0;
+  return (float)((t & 0x800 ? (t & 0x7ff) - 0x800 : t) / 16.0);
 }
